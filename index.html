@@ -52,21 +52,21 @@
                     <p>para enviar mensagem:</p>
                 </div>
                 <div class="recipientOptions">
-                    <div class="option first">
+                    <div onclick="selectOption(this)" class="option first">
                         <div>
                             <ion-icon name="people"></ion-icon>
                             <span>Todos</span>
                         </div>
                         <ion-icon name="checkmark-outline"></ion-icon>
                     </div>
-                    <div class="option">
+                    <div onclick="selectOption(this)" class="option">
                         <div>
                             <ion-icon name="person-circle"></ion-icon>
                             <span>João</span>
                         </div>
                         <ion-icon class="hiddingClass" name="checkmark-outline"></ion-icon>
                     </div>
-                    <div class="option">
+                    <div onclick="selectOption(this)" class="option">
                         <div>
                             <ion-icon name="person-circle"></ion-icon>
                             <span>Maria</span>
@@ -77,19 +77,21 @@
                 <div class="choose privacy">
                     <p>Escolha um contato</p>
                 </div>
-                <div class="option first">
-                    <div>
-                        <ion-icon class="lockIcon" name="lock-open"></ion-icon>
-                        <span>Público</span>
+                <div class="privacyOptions">
+                    <div onclick="selectOption(this)" class="option first">
+                        <div>
+                            <ion-icon class="lockIcon" name="lock-open"></ion-icon>
+                            <span>Público</span>
+                        </div>
+                        <ion-icon name="checkmark-outline"></ion-icon>
                     </div>
-                    <ion-icon name="checkmark-outline"></ion-icon>
-                </div>
-                <div class="option">
-                    <div>
-                        <ion-icon class="lockIcon" name="lock-closed"></ion-icon>
-                        <span>Reservadamente</span>
+                    <div onclick="selectOption(this)" class="option">
+                        <div>
+                            <ion-icon class="lockIcon" name="lock-closed"></ion-icon>
+                            <span>Reservadamente</span>
+                        </div>
+                        <ion-icon class="hiddingClass" name="checkmark-outline"></ion-icon>
                     </div>
-                    <ion-icon class="hiddingClass" name="checkmark-outline"></ion-icon>
                 </div>
             </div>
         
