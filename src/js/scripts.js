@@ -70,24 +70,57 @@ function renderChat(lastMsgs) {
                     <span>(${lastMsgs[i].time})</span>
                     <span><strong>${lastMsgs[i].from}</strong> ${lastMsgs[i].text}</span>
                 </li>`
+            
         } else {
             if (lastMsgs[i].type === "private_message") {
-            messageClass = " class=\"privateMessage\"";
-            privately = " reservadamente";
-            }
+                messageClass = " class=\"privateMessage\"";
+                privately = " reservadamente";
+            }            
             chatElement.innerHTML += 
             `<li${messageClass}>
                 <span>(${lastMsgs[i].time})</span>
                 <span><strong>${lastMsgs[i].from}</strong>${privately} para <strong>${lastMsgs[i].to}</strong>: ${lastMsgs[i].text}</span>
             </li>`
         }
+        messageClass = "";
+        privately = "";
     }
 }
 
+function sentMesasge() {
+    const newMessage = document.querySelector(".messageBox").value;
+    const recipient = selectedRecipient.querySelector("span").innerText;
+    const type = findTypebyPrivacy();
+    const messageObject = {
+        from: nickName,
+        to: recipient,
+        text: newMessage,
+        type: type
+    }
+    const request = axios.post("https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/messages", messageObject);
 
+    request.then(messageSent);
+    request.catch(errorSendingMessage);
+}
 
+function findTypebyPrivacy () {
+    if (selectedPrivacy.querySelector("span").innerText === "Público") {
+        console.log("Encontrou Público como privacidade");
+        return "message";
+    } else {
+        return "private_message";
+    }
+}
 
+function messageSent(answer) {
+    document.querySelector(".messageBox").value = ""
+    recoverMessages();
+    console.log("Mensagem enviada! Status: " + answer.status);
+}
 
+function errorSendingMessage(answer) {
+    alert(`Erro ${answer.response.status}. Mensagem não enviada. Tente atualizar a pagina e fazer novo login.`);
+}
 
 function toggleSidebar() {
     let sidebar = document.querySelector(".sidebar");
