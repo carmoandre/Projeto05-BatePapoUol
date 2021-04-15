@@ -11,6 +11,11 @@
     <title>Bate-Papo Uol</title>
 </head>
 <body>
+    <div class="loginScreen">
+        <img src="src/images/logo 2.png" alt="logo do bate papo: um balão que representa uma fala com a logo da uol e o texto 'bate papo uol'">
+        <input class="nickName" type="text" placeholder="Digite seu nome">
+        <button onclick="tryConection()">Entrar</button>
+    </div>
     <div class="topBar">
         <img src="src/images/logo 1.png" alt="logo do bate papo: um balão que representa uma fala com a logo da uol e o texto 'bate papo uol'">
         <ion-icon onclick="toggleSidebar()" name="people"></ion-icon>
@@ -44,7 +49,7 @@
         </div>
         <ion-icon onclick="console.log('Enviar mensagem')" name="paper-plane-outline"></ion-icon>
     </div>
-    <div class="sidebar">
+    <div class="sidebar hiddingClass">
             <div onclick="toggleSidebar()" class="clickToClose"></div>
             <div class="menu">
                 <div class="choose recipient">
@@ -97,6 +102,7 @@
         
     </div>
     <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="src/js/scripts.js"></script>
 </body>
 </html>
