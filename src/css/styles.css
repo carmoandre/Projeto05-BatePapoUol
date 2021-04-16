@@ -3,8 +3,12 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
+ul {
+  word-break: break-all;
+}
+
 ul li:first-child {
-  margin-top: 106px;
+  margin-top: 26px;
 }
 
 li {
@@ -30,7 +34,7 @@ span {
   left: 0;
   right: 0;
   background: #fff;
-  z-index: 4;
+  z-index: 6;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -80,8 +84,14 @@ span {
   left: 0;
 }
 
+.distance {
+  height: 80px;
+  width: 100%;
+}
+
 .chat {
-  margin: 80px 0;
+  overflow-y: scroll;
+  height: calc(100vh - 160px);
 }
 
 .statusMessage {
@@ -156,6 +166,7 @@ span {
   flex-direction: column;
   font-size: 16px;
   z-index: 5;
+  overflow-y: scroll;
 }
 
 .choose {
@@ -189,6 +200,13 @@ span {
 .option div ion-icon {
   font-size: 25px;
   margin-right: 8px;
+}
+
+.option span {
+  width: 100px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .option .lockIcon {

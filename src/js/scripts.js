@@ -1,8 +1,10 @@
 let nickName = "";
-let idUser = 0;
-let idChat = 0;
+let intervalIDUser = 0;
+let intervalIDChat = 0;
+let intervalIDParticipants = 0;
 let selectedRecipient = document.querySelector(".recipientOptions .first");
 let selectedPrivacy = document.querySelector(".privacyOptions .first");
+let recipientDisconnected = true;
 
 function tryConection() {
     nickName = document.querySelector(".nickName").value;
@@ -13,17 +15,15 @@ function tryConection() {
 }
 
 function logOnServer(answer) {
-    console.log(answer);
-    console.log(answer.status);
-    idUser = setInterval(stayLoggedIn, 5000);
+    intervalIDUser = setInterval(stayLoggedIn, 5000);
     document.querySelector(".loginScreen").classList.add("hiddingClass");
     recoverMessages();
-    idChat = setInterval(recoverMessages, 10000);
+    intervalIDChat = setInterval(recoverMessages, 3000);
+    recoverParticipants()
+    intervalIDParticipants = setInterval(recoverParticipants, 10000);
 }
 
 function tryAnotherName(answer) {
-    console.log(answer);
-    console.log(answer.response.status);
     document.querySelector(".nickName").value = "";
     alert("Nome já existente. Tente outro!");
 
@@ -36,55 +36,123 @@ function stayLoggedIn() {
 }
 
 function stilLogdedIn(answer) {
-    console.log("continua logado! Status: " + answer.status);
+    console.log("Continua logado! Status: " + answer.status);
 }
 
 function unexpectedLogout(answer) {
-    console.log("Erro: " + answer.response.status);
+    alert(`Erro ${answer.response.status}. Você foi deslogado no bate-papo. A janela sera recarregada para que você possa logar outra vez.`);
+    window.location.reload()
 }
 
 function recoverMessages() {
-    const request = axios.get("https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/messages")
-    request.then(renderWithAnswer);
+    const request = axios.get("https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/messages");
+    request.then(renderWithMessages);
     request.catch(errorGettingMessages);
 }; 
 
-function renderWithAnswer(answer) {
+function renderWithMessages(answer) {
     renderChat(answer.data);
 }
 
 function errorGettingMessages(answer) {
-    alert(`Erro ${answer.response.status}. Mensagens não recuperadas. Tente atualizar a pagina e fazer novo login.`);
+    alert(`Erro ${answer.response.status}. Mensagens não recuperadas. A janela sera recarregada para que você possa logar outra vez.`);
+    window.location.reload();
 }
 
 function renderChat(lastMsgs) {
-    let messageClass = "";
-    let privately = "";
     const chatElement = document.querySelector(".chat");
     chatElement.innerHTML = "";
+    let chatLastChild = "";
     for (let i = 0; i < lastMsgs.length; i++) {
+        let messageClass = "";
+        let privately = "";
+        let specificPart = "";
+        if (isPrivateButNotForYou(lastMsgs[i])) {
+            continue;
+        }
         if (lastMsgs[i].type === "status") {
             messageClass = " class=\"statusMessage\"";
-            chatElement.innerHTML += 
-                `<li${messageClass}>
-                    <span>(${lastMsgs[i].time})</span>
-                    <span><strong>${lastMsgs[i].from}</strong> ${lastMsgs[i].text}</span>
-                </li>`
-            
+            specificPart = `${lastMsgs[i].from}</strong> ${lastMsgs[i].text}`;        
         } else {
             if (lastMsgs[i].type === "private_message") {
                 messageClass = " class=\"privateMessage\"";
                 privately = " reservadamente";
-            }            
-            chatElement.innerHTML += 
+            }
+            specificPart = `${lastMsgs[i].from}</strong>${privately} para <strong>${lastMsgs[i].to}</strong>: ${lastMsgs[i].text}`;        
+        }
+
+        chatElement.innerHTML += 
             `<li${messageClass}>
                 <span>(${lastMsgs[i].time})</span>
-                <span><strong>${lastMsgs[i].from}</strong>${privately} para <strong>${lastMsgs[i].to}</strong>: ${lastMsgs[i].text}</span>
-            </li>`
-        }
-        messageClass = "";
-        privately = "";
+                <span><strong>${specificPart}</span>
+            </li>`;
     }
+    chatLastChild = document.querySelector(".chat").lastElementChild;
+    chatLastChild.scrollIntoView();
+}
+
+function isPrivateButNotForYou(message) {
+    if (message.type === "private_message") {
+        if (message.from !== nickName && message.to !== nickName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function recoverParticipants() {
+    const request = axios.get("https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/participants");
+    request.then(renderWithParticipants);
+    request.catch(errorGettingParticipants);
+}
+
+function renderWithParticipants(answer) {
+    renderParticipants(answer.data);
+}
+
+function errorGettingParticipants() {
+    alert(`Erro ${answer.response.status}. Particpantes não recuperadas. A janela sera recarregada para que você possa logar outra vez.`);
+    window.location.reload();
+}
+
+function renderParticipants(currentParticpants) {
+    const particpantsElement = document.querySelector(".recipientOptions");
+    let chosenBeforeRender = selectedRecipient.querySelector("span").innerText;
+    resetParticpantSelection(particpantsElement);
+    for (let i = 0; i < currentParticpants.length; i++) {
+        particpantsElement.innerHTML += 
+            `<div id="${i}" onclick="selectOption(this)" class="option">
+                <div>
+                    <ion-icon name="person-circle"></ion-icon>
+                    <span>${currentParticpants[i].name}</span>
+                </div>
+                <ion-icon class="hiddingClass" name="checkmark-outline"></ion-icon>
+            </div>`;
+        if (currentParticpants[i].name === chosenBeforeRender) {
+            chosenBeforeRender = document.getElementById(`${i}`);
+            recipientDisconnected = false;
+        } 
+    }
+    if (recipientDisconnected) {
+        const toAllParticipants = document.querySelector(".recipientOptions .first");
+        selectOption(toAllParticipants);
+    } else {
+        selectOption(chosenBeforeRender);
+    }
+}
+
+function resetParticpantSelection(element) {
+    element.innerHTML = 
+        `<div id="0" onclick="selectOption(this)" class="option first">
+            <div>
+                <ion-icon name="people"></ion-icon>
+                <span>Todos</span>
+            </div>
+            <ion-icon name="checkmark-outline"></ion-icon>
+        </div>`;
+    
+    selectedRecipient = document.querySelector(".recipientOptions .first");
+    updateChoices();
 }
 
 function sentMesasge() {
@@ -119,7 +187,8 @@ function messageSent(answer) {
 }
 
 function errorSendingMessage(answer) {
-    alert(`Erro ${answer.response.status}. Mensagem não enviada. Tente atualizar a pagina e fazer novo login.`);
+    alert(`Erro ${answer.response.status}. Mensagem não enviada. A Página será recarregada e será necessário fazer login no bate-papo novamente.`);
+    window.location.reload();
 }
 
 function toggleSidebar() {
@@ -137,7 +206,14 @@ function selectOption(element) {
         toggleSelection(selectedPrivacy.children[1]);
         selectedPrivacy = element;
     }
-    updateChoices()
+    updateChoices();
+}
+
+function isSameElement(element) {
+    if (element.querySelector("span").innerText === selectedRecipient.querySelector("span").innerText) {
+        return true;
+    }
+    return false;
 }
 
 function toggleSelection(element) {
