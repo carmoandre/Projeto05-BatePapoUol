@@ -4,7 +4,22 @@ let intervalIDChat = 0;
 let intervalIDParticipants = 0;
 let selectedRecipient = document.querySelector(".recipientOptions .first");
 let selectedPrivacy = document.querySelector(".privacyOptions .first");
-let recipientDisconnected = true;
+let loginScreenInput = document.querySelector(".nickName");
+let messageTypingTypInput = document.querySelector(".messageBox");
+
+loginScreenInput.addEventListener("keyup", clickEffect);
+messageTypingTypInput.addEventListener("keyup", clickEffect);
+
+function clickEffect(event) {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      if (document.querySelector(".loginScreen").classList.contains("hiddingClass")) {
+            document.querySelector(".bottomBar ion-icon").click();
+      } else {
+          document.querySelector(".loginScreen button").click();
+      }
+    }
+  }
 
 function tryConection() {
     nickName = document.querySelector(".nickName").value;
@@ -130,15 +145,10 @@ function renderParticipants(currentParticpants) {
             </div>`;
         if (currentParticpants[i].name === chosenBeforeRender) {
             chosenBeforeRender = document.getElementById(`${i}`);
-            recipientDisconnected = false;
+            selectOption(chosenBeforeRender)
         } 
     }
-    if (recipientDisconnected) {
-        const toAllParticipants = document.querySelector(".recipientOptions .first");
-        selectOption(toAllParticipants);
-    } else {
-        selectOption(chosenBeforeRender);
-    }
+
 }
 
 function resetParticpantSelection(element) {
@@ -152,7 +162,7 @@ function resetParticpantSelection(element) {
         </div>`;
     
     selectedRecipient = document.querySelector(".recipientOptions .first");
-    updateChoices();
+    selectOption(selectedRecipient);
 }
 
 function sentMesasge() {
@@ -173,7 +183,6 @@ function sentMesasge() {
 
 function findTypebyPrivacy () {
     if (selectedPrivacy.querySelector("span").innerText === "Público") {
-        console.log("Encontrou Público como privacidade");
         return "message";
     } else {
         return "private_message";
@@ -183,7 +192,6 @@ function findTypebyPrivacy () {
 function messageSent(answer) {
     document.querySelector(".messageBox").value = ""
     recoverMessages();
-    console.log("Mensagem enviada! Status: " + answer.status);
 }
 
 function errorSendingMessage(answer) {
